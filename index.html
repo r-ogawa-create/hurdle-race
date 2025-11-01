@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>遺伝的アルゴリズムによる障害物レース進化シミュレーション</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <header class="app-header">
+    <h1>遺伝的アルゴリズムによる障害物レース進化シミュレーション</h1>
+  </header>
+
+  <main class="app-layout">
+    <section class="simulation-area">
+      <div class="sim-side-panel left-panel">
+        <h3>色設定</h3>
+        <div class="control-group">
+          <label for="runner-color">円（通常時）の色</label>
+          <input id="runner-color" type="color" value="#2563eb">
+        </div>
+        <div class="control-group">
+          <label for="runner-crash-color">円（衝突時）の色</label>
+          <input id="runner-crash-color" type="color" value="#ef4444">
+        </div>
+        <div class="control-group">
+          <label for="hurdle-color">ハードルの色</label>
+          <input id="hurdle-color" type="color" value="#ff6347">
+        </div>
+        <div class="control-group">
+          <label for="hurdle-hit-color">ハードル（衝突時）の色</label>
+          <input id="hurdle-hit-color" type="color" value="#fb923c">
+        </div>
+      </div>
+
+      <div id="canvas-wrapper">
+        <!-- p5.js のキャンバスをここに埋め込む -->
+      </div>
+
+      <div class="sim-side-panel right-panel">
+        <h3>シミュレーション操作</h3>
+        <div class="button-stack">
+          <button id="toggle-play">再生 / 一時停止</button>
+          <button id="next-generation">次世代へ進む</button>
+          <button id="stop-simulation">停止</button>
+          <button id="reset-simulation" class="accent">リセット</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="level-banner">
+      <span>現在のレベル</span>
+      <strong id="current-level">1</strong>
+    </div>
+
+    <section class="control-area">
+      <div class="control-panel">
+        <h2>設定パネル</h2>
+
+        <div class="control-group">
+          <label for="population-size">個体数</label>
+          <input id="population-size" type="number" min="10" max="200" step="5" value="50">
+        </div>
+
+        <div class="control-group">
+          <label for="max-generations">世代数（最大）</label>
+          <input id="max-generations" type="number" min="10" max="1000" step="10" value="200">
+        </div>
+
+        <div class="control-group">
+          <label for="mutation-rate">突然変異率 <span id="mutation-rate-label">5.0%</span></label>
+          <input id="mutation-rate" type="range" min="0.001" max="0.2" step="0.001" value="0.05">
+        </div>
+
+        <div class="control-group">
+          <label for="course-length">コース長</label>
+          <input id="course-length" type="number" min="400" max="3000" step="50" value="1000">
+        </div>
+
+        <div class="control-group">
+          <label for="hurdle-mode">ハードル配置方式</label>
+          <select id="hurdle-mode">
+            <option value="random">ランダム配置</option>
+            <option value="manual">手動配置</option>
+          </select>
+        </div>
+
+        <div class="control-group" id="manual-hurdle-group">
+          <label for="manual-hurdles">手動配置（距離:高さ倍率, ...）</label>
+          <textarea id="manual-hurdles" rows="3">150:1.2, 320:1.8, 520:1.5, 740:2.0</textarea>
+        </div>
+
+        <div class="control-group">
+          <label for="simulation-speed">シミュレーション速度</label>
+          <select id="simulation-speed">
+            <option value="0.5">0.5倍</option>
+            <option value="1" selected>1倍</option>
+            <option value="2">2倍</option>
+            <option value="4">4倍</option>
+            <option value="8">8倍</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="dashboard">
+        <h2>ダッシュボード</h2>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <span class="stat-label">現在の世代</span>
+            <span id="current-generation" class="stat-value">1</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">平均到達距離</span>
+            <span id="average-distance" class="stat-value">0</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">最長到達距離</span>
+            <span id="best-distance" class="stat-value">0</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">脱落数（ハードル衝突）</span>
+            <span id="dropout-count" class="stat-value">0</span>
+          </div>
+        </div>
+
+        <div class="chart-wrapper">
+          <canvas id="score-chart"></canvas>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>教育用デモ：パラメータを調整して進化の過程を観察してください。</p>
+  </footer>
+
+  <div id="result-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3>最終リザルト</h3>
+      <p id="result-message">シミュレーション終了。</p>
+      <button id="close-modal">閉じる</button>
+    </div>
+  </div>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
